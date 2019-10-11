@@ -51,7 +51,7 @@ def draw_curve_5_points(p1, p2, p3, p4 ,p5):
 
 
 
-#변수 초기화
+#변수 초기화 dsadas
 running=True
 KPU_WIDTH, KPU_HEIGHT = 1280, 762
 frame=0
