@@ -1,100 +1,135 @@
 from pico2d import *
+import random
 
-def attack(x, y):
-    bullet.clip_draw(0, 0 , 50, 50, x, y)
+
+class Grass:
+    def __init__(self):
+        self.w, self.h = 400, 30
+        self.image = load_image('grass.png')
+
+    def draw(self):
+        self.image.draw(self.w, self.h)
+        self.image.draw(self.w+800, self.h+40)
+
+
+class Background:
+    def __init__(self):
+        self.image = load_image('KPU_GROUND_FULL.png')
+
+    def draw(self):
+        self.image.draw(WinWidth, WinHeight)
+
+
+class Boy:
+    def __init__(self):
+        self.x, self.y = random.randint(0, 400), 90
+        self.direction, self.face_direction = 0, 1
+        self.jump, self.jump_count = 0, 0
+        self.frame = random.randint(0, 7)
+        self.image = load_image('animation_sheet.png')
+
+    def update(self):
+        self.frame = (self.frame + 1) % 8
+        self.x += self.direction
+        if self.jump == 1 and self.jump_count < 100:
+            self.jump_count += 1.5
+        if self.jump_count >= 100:
+            self.jump = 0
+        if self.jump_count > 0 and self.jump == 0:
+            self.jump_count -= 1.5
+
+    def draw(self):
+        if self.direction == 0:
+            if self.face_direction > 0:
+                self.image.clip_draw(0, 100 * 3, 100, 100, self.x, self.y + self.jump_count)
+            elif self.face_direction < 0:
+                self.image.clip_draw(0, 100 * 2, 100, 100, self.x, self.y + self.jump_count)
+        elif self.direction > 0:
+            self.image.clip_draw(self.frame * 100, 100 * 1, 100, 100, self.x, self.y + self.jump_count)
+        elif self.direction < 0:
+            self.image.clip_draw(self.frame * 100, 100 * 0, 100, 100, self.x, self.y + self.jump_count)
+
+        if 1200 < self.x:
+            self.x = 1200
+        elif self.x < 0:
+            self.x = 0
+        self.x += self.direction * 1.5
+
+
+class Bullet:
+    def __init__(self):
+        self.x, self.y = 0, 0
+        self.direction = 0
+        self.in_fire = 0
+        self.delay = 200
+        self.image = load_image('bullet.png')
+
+    def update(self):
+        if self.in_fire == 0:
+            self.x, self.y = player.x, player.y+player.jump_count
+            self.direction = player.face_direction
+            self.delay = 200
+        if self.in_fire == 1:
+            self.x += self.direction * 5
+            self.delay -= 0.5
+        if self.delay < 0:
+            self.in_fire = 0
+
+    def draw(self):
+        self.image.clip_draw(0, 0, 60, 60, self.x, self.y, 30, 30)
+
 
 def handle_events():
     global running
-    global direction, face_direction
-    global jump, jump_count
-    global fire
     events = get_events()
     for event in events:
         if event.type == SDL_QUIT:
             running = False
         elif event.type == SDL_KEYDOWN:
             if event.key == SDLK_RIGHT:
-                direction += 1
-                face_direction = 1
+                player.direction += 1
+                player.face_direction = 1
             elif event.key == SDLK_LEFT:
-                direction -= 1
-                face_direction = -1
-            elif event.key == SDLK_a and fire==0:
-                fire=1
-            elif event.key == SDLK_s and jump_count==0:
-                jump=1
+                player.direction -= 1
+                player.face_direction = -1
+            elif event.key == SDLK_a and bullet.in_fire == 0:
+                bullet.in_fire = 1
+            elif event.key == SDLK_s and player.jump_count == 0:
+                player.jump = 1
             elif event.key == SDLK_ESCAPE:
                 running = False
         elif event.type == SDL_KEYUP:
             if event.key == SDLK_RIGHT:
-                direction -= 1
+                player.direction -= 1
             elif event.key == SDLK_LEFT:
-                direction += 1
+                player.direction += 1
 
 
-WinWidth, WinHeight=1200, 800
+WinWidth, WinHeight = 1200, 800
 running = True
-x = 800 // 2
-y = 90
-fire=0
-frame = 0
-direction = 0
-face_direction = 1
-jump, jump_count=0, 0
-bullet_x, bullet_y=0, 0
-bullet_delay=200
 
 open_canvas(WinWidth, WinHeight)
-grass = load_image('grass.png')
-background=load_image('KPU_GROUND_FULL.png')
-character = load_image('animation_sheet.png')
-bullet=load_image('bullet.png')
+grass = Grass()
+background = Background()
+player = Boy()
+bullets = [Bullet() for i in range(4)]
 
 while running:
     clear_canvas()
-    background.draw(WinWidth, WinHeight)
-    grass.draw(400, 30)
-    grass.draw(1000, 60, 400, 120)
-
-    if direction == 0:
-        if face_direction > 0:
-            character.clip_draw(0, 100 * 3, 100, 100, x, y+jump_count)
-        elif face_direction < 0:
-            character.clip_draw(0, 100 * 2, 100, 100, x, y+jump_count)
-    elif direction > 0:
-        character.clip_draw(frame * 100, 100 * 1, 100, 100, x, y+jump_count)
-    elif direction < 0:
-        character.clip_draw(frame * 100, 100 * 0, 100, 100, x, y+jump_count)
-
-        
-    
-    if jump==1 and jump_count<100:
-        jump_count+=1.5
-    if jump_count>=100:
-        jump=0
-    if jump_count>0 and jump==0:
-        jump_count-=1.5
-
-    if fire==0:
-        bullet_delay=200
-        bullet_direction=face_direction
-        bullet_x, bullet_y=x, y+jump_count
-    if fire==1:
-        attack(bullet_x, bullet_y)
-        bullet_x+=bullet_direction*5
-        bullet_delay-=1
-
-    if bullet_delay<0:
-        fire=0
-        
-    update_canvas()
     handle_events()
-    frame = (frame + 1) % 8
+    background.draw()
+    grass.draw()
+    player.draw()
 
-    if 800 < x:
-        x = 800
-    elif x < 0:
-        x = 0
-    x += direction * 1.5
+    for bullet in bullets:
+        if bullet.in_fire == 1:
+            bullet.draw()
+
+    player.update()
+
+    for bullet in bullets:
+        bullet.update()
+
+    update_canvas()
 
 close_canvas()
