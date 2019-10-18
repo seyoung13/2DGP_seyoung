@@ -4,7 +4,7 @@ import main_state
 
 name = "PauseState"
 image = None
-
+counter = 300
 
 def enter():
     global image
@@ -28,14 +28,18 @@ def handle_events():
 
 def draw():
     clear_canvas()
-    image.draw(400, 300, 100, 100)
+    if counter > 100:
+        image.draw(400, 300, 100, 100)
     main_state.boy.draw()
     main_state.grass.draw()
     update_canvas()
 
 
 def update():
-    pass
+    global counter
+    counter -= 1
+    if counter == 0:
+        counter = 300
 
 
 def pause():
