@@ -9,7 +9,7 @@ class Grass:
 
     def draw(self):
         self.image.draw(self.w, self.h)
-        self.image.draw(self.w+800, self.h+40)
+        self.image.draw(self.w + 800, self.h + 40)
 
 
 class Background:
@@ -66,7 +66,7 @@ class Bullet:
 
     def update(self):
         if self.in_fire == 0:
-            self.x, self.y = player.x, player.y+player.jump_count
+            self.x, self.y = player.x, player.y + player.jump_count
             self.direction = player.face_direction
             self.delay = 200
         if self.in_fire == 1:
@@ -92,7 +92,7 @@ def handle_events():
             elif event.key == SDLK_LEFT:
                 player.direction -= 1
                 player.face_direction = -1
-            elif event.key == SDLK_a and bullet.in_fire == 0:
+            elif event.key == SDLK_a:
                 bullet.in_fire = 1
             elif event.key == SDLK_s and player.jump_count == 0:
                 player.jump = 1

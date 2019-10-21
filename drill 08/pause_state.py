@@ -26,7 +26,7 @@ def handle_events():
                 game_framework.pop_state()
 
 
-def draw():
+def draw(): 
     clear_canvas()
     if counter > 100:
         image.draw(400, 300, 100, 100)
