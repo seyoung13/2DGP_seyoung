@@ -24,30 +24,30 @@ class Boy:
     def __init__(self):
         self.x, self.y = random.randint(0, 400), 90
         self.direction, self.face_direction = 0, 1
-        self.jump, self.jump_count = 0, 0
+        self.jumping, self.jump_y, self.jump_count = 0, 0, 0
         self.frame = random.randint(0, 7)
         self.image = load_image('animation_sheet.png')
 
     def update(self):
         self.frame = (self.frame + 1) % 8
-        self.x += self.direction
-        if self.jump == 1 and self.jump_count < 100:
-            self.jump_count += 1.5
-        if self.jump_count >= 100:
-            self.jump = 0
-        if self.jump_count > 0 and self.jump == 0:
-            self.jump_count -= 1.5
+        self.x += 0.1*self.direction
+        if self.jumping == 1 and self.jump_count <= 20:
+            self.jump_count += 0.1
+        if self.jump_count >= 20:
+            self.jumping = 0
+            self.jump_count = 0
+        self.jump_y = -(self.jump_count**2) + (20*self.jump_count)
 
     def draw(self):
         if self.direction == 0:
             if self.face_direction > 0:
-                self.image.clip_draw(0, 100 * 3, 100, 100, self.x, self.y + self.jump_count)
+                self.image.clip_draw(0, 100 * 3, 100, 100, self.x, self.y + self.jump_y)
             elif self.face_direction < 0:
-                self.image.clip_draw(0, 100 * 2, 100, 100, self.x, self.y + self.jump_count)
+                self.image.clip_draw(0, 100 * 2, 100, 100, self.x, self.y + self.jump_y)
         elif self.direction > 0:
-            self.image.clip_draw(self.frame * 100, 100 * 1, 100, 100, self.x, self.y + self.jump_count)
+            self.image.clip_draw(self.frame * 100, 100 * 1, 100, 100, self.x, self.y + self.jump_y)
         elif self.direction < 0:
-            self.image.clip_draw(self.frame * 100, 100 * 0, 100, 100, self.x, self.y + self.jump_count)
+            self.image.clip_draw(self.frame * 100, 100 * 0, 100, 100, self.x, self.y + self.jump_y)
 
         if 1200 < self.x:
             self.x = 1200
@@ -66,7 +66,7 @@ class Bullet:
 
     def update(self):
         if self.in_fire == 0:
-            self.x, self.y = player.x, player.y + player.jump_count
+            self.x, self.y = player.x, player.y + player.jump_y
             self.direction = player.face_direction
             self.delay = 200
         if self.in_fire == 1:
@@ -94,8 +94,8 @@ def handle_events():
                 player.face_direction = -1
             elif event.key == SDLK_a:
                 bullet.in_fire = 1
-            elif event.key == SDLK_s and player.jump_count == 0:
-                player.jump = 1
+            elif event.key == SDLK_s and player.jumping == 0:
+                player.jumping = 1
             elif event.key == SDLK_ESCAPE:
                 running = False
         elif event.type == SDL_KEYUP:

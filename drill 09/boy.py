@@ -84,14 +84,14 @@ class DashState:
     def enter(boy, event):
         if event == RSHIFT_DOWN or LSHIFT_DOWN:
             if boy.velocity == 1:
-                boy.velocity += 2
-            else:
-                boy.velocity -= 2
+                boy.velocity += 1
+            elif boy.velocity == -1:
+                boy.velocity -= 1
         elif event == RSHIFT_UP or LSHIFT_UP:
-            if boy.velocity == 3:
-                boy.velocity -= 2
-            else:
-                boy.velocity += 2
+            if boy.velocity == 2:
+                boy.velocity -= 1
+            elif boy.velocity == -2:
+                boy.velocity += 1
 
     @staticmethod
     def exit(boy, event):
@@ -107,7 +107,7 @@ class DashState:
 
     @staticmethod
     def draw(boy):
-        if boy.velocity >= 0:
+        if boy.velocity >  0:
             boy.image.clip_draw(boy.frame * 100, 100, 100, 100, boy.x, boy.y)
         else:
             boy.image.clip_draw(boy.frame * 100, 0, 100, 100, boy.x, boy.y)
@@ -116,8 +116,8 @@ class DashState:
 next_state_table = {
     IdleState: {RIGHT_UP: RunState, LEFT_UP: RunState,
                 RIGHT_DOWN: RunState, LEFT_DOWN: RunState,
-                LSHIFT_UP: DashState, RSHIFT_UP: DashState,
-                LSHIFT_DOWN: DashState, RSHIFT_DOWN: DashState
+                LSHIFT_UP: RunState, RSHIFT_UP: RunState,
+                LSHIFT_DOWN: RunState, RSHIFT_DOWN: RunState
                 },
     RunState: {RIGHT_UP: IdleState, LEFT_UP: IdleState,
                LEFT_DOWN: IdleState, RIGHT_DOWN: IdleState,
