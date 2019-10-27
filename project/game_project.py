@@ -1,4 +1,4 @@
-from pico2d import *
+from pico2d import*
 import random
 
 
@@ -20,7 +20,7 @@ class Background:
         self.image.draw(WinWidth, WinHeight)
 
 
-class Boy:
+class Player:
     def __init__(self):
         self.x, self.y = random.randint(0, 400), 90
         self.direction, self.face_direction = 0, 1
@@ -30,13 +30,15 @@ class Boy:
 
     def update(self):
         self.frame = (self.frame + 1) % 8
-        self.x += 0.1*self.direction
+        # 이동
+        self.x += 0.1 * self.direction
+        # 점프
         if self.jumping == 1 and self.jump_count <= 20:
             self.jump_count += 0.1
         if self.jump_count >= 20:
             self.jumping = 0
             self.jump_count = 0
-        self.jump_y = -(self.jump_count**2) + (20*self.jump_count)
+        self.jump_y = -(self.jump_count ** 2) + (20 * self.jump_count)
 
     def draw(self):
         if self.direction == 0:
@@ -48,11 +50,7 @@ class Boy:
             self.image.clip_draw(self.frame * 100, 100 * 1, 100, 100, self.x, self.y + self.jump_y)
         elif self.direction < 0:
             self.image.clip_draw(self.frame * 100, 100 * 0, 100, 100, self.x, self.y + self.jump_y)
-
-        if 1200 < self.x:
-            self.x = 1200
-        elif self.x < 0:
-            self.x = 0
+        self.x = clamp(25, self.x, 1200 - 25)
         self.x += self.direction * 1.5
 
 
@@ -60,23 +58,35 @@ class Bullet:
     def __init__(self):
         self.x, self.y = 0, 0
         self.direction = 0
-        self.in_fire = 0
-        self.delay = 200
+        self.remain = 0
         self.image = load_image('bullet.png')
 
     def update(self):
-        if self.in_fire == 0:
+        if self.remain == 0:
             self.x, self.y = player.x, player.y + player.jump_y
             self.direction = player.face_direction
-            self.delay = 200
-        if self.in_fire == 1:
+        elif self.remain > 0:
             self.x += self.direction * 5
-            self.delay -= 0.5
-        if self.delay < 0:
-            self.in_fire = 0
+            self.remain -= 0.5
 
     def draw(self):
         self.image.clip_draw(0, 0, 60, 60, self.x, self.y, 30, 30)
+
+
+def push(arr, size, num):
+    for i in range(size):
+        if arr[i].remain == 0:
+            arr[i].remain = num
+            return
+    return
+
+
+def pop(arr, size, num):
+    for i in range(size - 1, -1, -1):
+        if arr[i] != 0:
+            arr[i] = 0
+            return
+    return
 
 
 def handle_events():
@@ -86,14 +96,17 @@ def handle_events():
         if event.type == SDL_QUIT:
             running = False
         elif event.type == SDL_KEYDOWN:
+            # 이동
             if event.key == SDLK_RIGHT:
                 player.direction += 1
                 player.face_direction = 1
             elif event.key == SDLK_LEFT:
                 player.direction -= 1
                 player.face_direction = -1
+            # 공격
             elif event.key == SDLK_a:
-                bullet.in_fire = 1
+                push(bullet, 4, 200)
+            # 점프
             elif event.key == SDLK_s and player.jumping == 0:
                 player.jumping = 1
             elif event.key == SDLK_ESCAPE:
@@ -111,24 +124,25 @@ running = True
 open_canvas(WinWidth, WinHeight)
 grass = Grass()
 background = Background()
-player = Boy()
-bullets = [Bullet() for i in range(4)]
+player = Player()
+bullet = [Bullet() for i in range(4)]
 
 while running:
     clear_canvas()
     handle_events()
+
     background.draw()
     grass.draw()
     player.draw()
 
-    for bullet in bullets:
-        if bullet.in_fire == 1:
-            bullet.draw()
+    for i in range(4):
+        if bullet[i].remain != 0:
+            bullet[i].draw()
 
     player.update()
 
-    for bullet in bullets:
-        bullet.update()
+    for i in range(4):
+        bullet[i].update()
 
     update_canvas()
 
