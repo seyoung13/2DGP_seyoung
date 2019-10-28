@@ -4,12 +4,12 @@ import random
 
 class Grass:
     def __init__(self):
-        self.w, self.h = 400, 30
+        self.x, self.y = None, None
+        self.w, self.h = None, None
         self.image = load_image('grass.png')
 
     def draw(self):
-        self.image.draw(self.w, self.h)
-        self.image.draw(self.w + 800, self.h + 40)
+        self.image.draw(self.x, self.y, self.w, self.h)
 
 
 class Background:
@@ -23,6 +23,7 @@ class Background:
 class Player:
     def __init__(self):
         self.x, self.y = random.randint(0, 400), 90
+        self.ground = None
         self.direction, self.face_direction = 0, 1
         self.jumping, self.jump_y, self.jump_count = 0, 0, 0
         self.frame = 0
@@ -32,10 +33,15 @@ class Player:
         self.frame = (self.frame + 1) % 8
         # 이동
         self.x += 0.1 * self.direction
+        for i in range(2):
+            if grass[i].x - grass[i].w/2 < self.x < grass[i].x + grass[i].w/2:
+                self.ground = grass[i].y + grass[i].h
+                if self.jumping == 0:
+                    self.y = grass[i].y + grass[i].h
         # 점프
         if self.jumping == 1 and self.jump_count <= 20:
             self.jump_count += 0.1
-        if self.jump_count >= 20:
+        if self.jump_count >= 20 or self.y < self.ground:
             self.jumping = 0
             self.jump_count = 0
         self.jump_y = -(self.jump_count ** 2) + (20 * self.jump_count)
@@ -69,8 +75,9 @@ class Pistol:
             self.x += self.direction * 5
             self.remain -= 0.5
         # 판정
-        if enemy.hp > 0 and \
+        if enemy.hp > 0 and self.remain > 0 and \
                 enemy.x - 10 < self.x < enemy.x + 10 and enemy.y - 50 < self.y < enemy.y + 50:
+            enemy.hp -= 1
             self.remain = 0
 
     def draw(self):
@@ -79,7 +86,7 @@ class Pistol:
 
 class Enemy:
     def __init__(self):
-        self.x, self.y = random.randint(800, 1100), 150
+        self.x, self.y = random.randint(600, 1100), 150
         self.hp = 5
         self.direction, self.face_direction = 0, 1
         self.jumping, self.jump_y, self.jump_count = 0, 0, 0
@@ -90,6 +97,9 @@ class Enemy:
         self.frame = (self.frame + 1) % 8
         # 이동
         self.x += 0.1 * self.direction
+        for i in range(2):
+            if grass[i].x - grass[i].w/2 < self.x < grass[i].x + grass[i].w/2:
+                self.y = grass[i].y+grass[i].h
         # 점프
         if self.jumping == 1 and self.jump_count <= 20:
             self.jump_count += 0.1
@@ -98,10 +108,10 @@ class Enemy:
             self.jump_count = 0
         self.jump_y = -(self.jump_count ** 2) + (20 * self.jump_count)
         # 판정
-        for i in range(pistol_max):
-            if self.hp > 0 and \
-                    self.x - 10 < pistol[i].x < self.x + 10 and self.y - 50 < pistol[i].y < self.y + 50:
-                self.hp -= 1
+        if self.hp <= 0:
+            self.x = random.randint(600, 1100)
+            self.y = random.randint(50, 150)
+            self.hp = 5
 
     def draw(self):
         if self.direction == 0:
@@ -158,7 +168,10 @@ WinWidth, WinHeight = 1200, 800
 running = True
 
 open_canvas(WinWidth, WinHeight)
-grass = Grass()
+grass = [Grass() for i in range(2)]
+
+grass[0].x, grass[0].y, grass[0].w, grass[0].h = 400, 30, 800, 60
+grass[1].x, grass[1].y, grass[1].w, grass[1].h = 1000, 90, 400, 60
 background = Background()
 
 player = Player()
@@ -171,7 +184,8 @@ while running:
     handle_events()
 
     background.draw()
-    grass.draw()
+    for i in range(2):
+        grass[i].draw()
     player.draw()
     if enemy.hp > 0:
         enemy.draw()
@@ -181,8 +195,7 @@ while running:
             pistol[i].draw()
 
     player.update()
-    if enemy.hp > 0:
-        enemy.update()
+    enemy.update()
 
     for i in range(pistol_max):
         pistol[i].update()
