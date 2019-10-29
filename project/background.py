@@ -8,3 +8,6 @@ class Background:
 
     def draw(self):
         self.image.draw(self.w / 2, self.h / 2, self.w, self.h)
+
+    def update(self):
+        pass

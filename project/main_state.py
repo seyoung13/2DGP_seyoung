@@ -5,31 +5,40 @@ import os
 from pico2d import *
 
 import game_framework
+import game_world
 
 from player import Player
 from ground import Ground
 from background import Background
+from pistol import Pistol
+from enemy import Enemy
 
 name = "MainState"
 
 background = None
 ground = None
 player = None
+pistol = None
+enemy = None
 font = None
 
 
 def enter():
-    global player, ground, background
+    global player, ground, background, pistol, enemy
     player = Player()
     ground = Ground()
+    pistol = Pistol()
     background = Background()
+    enemy = Enemy()
+    game_world.add_object(enemy, 1)
+    game_world.add_object(player, 1)
+    game_world.add_object(pistol, 1)
+    game_world.add_object(background, 0)
+    game_world.add_object(ground, 0)
 
 
 def exit():
-    global player, ground, background
-    del player
-    del ground
-    del background
+    game_world.clear()
 
 
 def pause():
@@ -52,12 +61,12 @@ def handle_events():
 
 
 def update():
-    player.update()
+    for game_object in game_world.all_objects():
+        game_object.update()
 
 
 def draw():
     clear_canvas()
-    background.draw()
-    ground.draw()
-    player.draw()
+    for game_object in game_world.all_objects():
+        game_object.draw()
     update_canvas()
