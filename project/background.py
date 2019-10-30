@@ -2,8 +2,8 @@ from pico2d import*
 
 
 class Background:
-    def __init__(self):
-        self.w, self.h = 1200, 800
+    def __init__(self, w, h):
+        self.w, self.h = w, h
         self.image = load_image('KPU_GROUND_FULL.png')
 
     def draw(self):

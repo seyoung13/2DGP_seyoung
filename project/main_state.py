@@ -8,15 +8,13 @@ import game_framework
 import game_world
 
 from player import Player
-from ground import Ground
-from background import Background
+from map import Map
 from pistol import Pistol
 from enemy import Enemy
 
 name = "MainState"
 
-background = None
-ground = None
+map1 = None
 player = None
 pistol = None
 enemy = None
@@ -24,18 +22,16 @@ font = None
 
 
 def enter():
-    global player, ground, background, pistol, enemy
+    global player, map1, pistol, enemy
     player = Player()
-    ground = Ground()
+    map1 = Map()
     enemy = Enemy()
     pistol = Pistol()
-    background = Background()
 
     game_world.add_object(enemy, 1)
     game_world.add_object(player, 1)
     game_world.add_object(pistol, 1)
-    game_world.add_object(background, 0)
-    game_world.add_object(ground, 0)
+    game_world.add_object(map1, 0)
 
 
 def exit():

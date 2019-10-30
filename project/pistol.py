@@ -24,10 +24,11 @@ class Pistol:
             Pistol.max_pistol -= 1
             game_world.remove_object(self)
         # 적을 맞힘
-        elif main_state.inRect(main_state.enemy.x - 10, main_state.enemy.y + 10,
-                               main_state.enemy.x + 10, main_state.enemy.y - 10, self.x, self.y):
+        elif main_state.inRect(main_state.enemy.x - 10, main_state.enemy.y + 50,
+                               main_state.enemy.x + 10, main_state.enemy.y - 50, self.x, self.y):
             Pistol.max_pistol -= 1
             main_state.enemy.hp -= 1
+            main_state.enemy.hit = 1
             game_world.remove_object(self)
 
     def draw(self):

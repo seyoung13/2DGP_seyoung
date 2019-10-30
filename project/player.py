@@ -1,5 +1,6 @@
 from pico2d import *
 import game_world
+import main_state
 from pistol import Pistol
 
 # Boy Event
@@ -41,22 +42,23 @@ class IdleState:
 
     @staticmethod
     def do(player):
-        player.frame = (player.frame + 1) % 8
-
         player.jump_y = -(player.jump_count ** 2) + (20 * player.jump_count)
         if player.jumping == 1 and player.jump_count < 20:
             player.jump_count += 0.1
+            player.frame = (player.frame + 1) % 8
+            player.fy = 0
 
         if player.jump_count > 20:
             player.jumping = 0
             player.jump_count = 0
+            player.fy = 2
 
     @staticmethod
     def draw(player):
         if player.direction > 0:
-            player.image.clip_draw(player.frame * 100, 100, 100, 100, player.x, player.y + player.jump_y)
+            player.image.clip_draw(player.frame * 100, 100 * (player.fy+1), 100, 100, player.x, player.y + player.jump_y)
         elif player.direction < 0:
-            player.image.clip_draw(player.frame * 100, 0, 100, 100, player.x, player.y + player.jump_y)
+            player.image.clip_draw(player.frame * 100, 100 * player.fy, 100, 100, player.x, player.y + player.jump_y)
 
 
 class RunState:
@@ -97,9 +99,9 @@ class RunState:
     @staticmethod
     def draw(player):
         if player.direction > 0:
-            player.image.clip_draw(player.frame * 100, 100, 100, 100, player.x, player.y + player.jump_y)
+            player.image.clip_draw(player.frame * 100, 100 * 1, 100, 100, player.x, player.y + player.jump_y)
         elif player.direction < 0:
-            player.image.clip_draw(player.frame * 100, 0, 100, 100, player.x, player.y + player.jump_y)
+            player.image.clip_draw(player.frame * 100, 100 * 0, 100, 100, player.x, player.y + player.jump_y)
 
 
 next_state_table = {
@@ -120,6 +122,7 @@ class Player:
         self.x, self.y = 200, 90
         self.image = load_image('animation_sheet.png')
         self.frame = 0
+        self.fy = 2
         self.direction = 1
         self.velocity = 0
         self.jumping, self.jump_y, self.jump_count = 0, 0, 0
