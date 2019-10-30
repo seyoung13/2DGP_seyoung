@@ -1,28 +1,27 @@
 from pico2d import *
 import random
-from pistol import Pistol
+import main_state
 
 
 class Enemy:
+
     def __init__(self):
-        self.x, self.y = random.randint(600, 1100), random.randint(50, 150)
+        self.x, self.y = random.randint(100, 1100), random.randint(70, 100)
         self.hp = 5
         self.direction, self.face_direction = 0, 1
         self.jumping, self.jump_y, self.jump_count = 0, 0, 0
         self.frame = 0
         self.image = load_image('animation_sheet.png')
+        self.bullet_x, self.bullet_y = 0, 0
 
     def update(self):
         self.frame = (self.frame + 1) % 8
         # 이동
 
         # 판정
-        #if self.hp > 0 and \
-                #self.x - 10 < pistol.x < self.x + 10 and self.y - 50 < pistol.y < self.y + 50:
-            #self.hp -= 1
         if self.hp <= 0:
-            self.x = random.randint(600, 1100)
-            self.y = random.randint(50, 150)
+            self.x = random.randint(100, 1100)
+            self.y = random.randint(90, 100)
             self.hp = 5
 
     def draw(self):

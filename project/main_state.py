@@ -27,9 +27,10 @@ def enter():
     global player, ground, background, pistol, enemy
     player = Player()
     ground = Ground()
+    enemy = Enemy()
     pistol = Pistol()
     background = Background()
-    enemy = Enemy()
+
     game_world.add_object(enemy, 1)
     game_world.add_object(player, 1)
     game_world.add_object(pistol, 1)
