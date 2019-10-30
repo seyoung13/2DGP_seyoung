@@ -71,3 +71,10 @@ def draw():
     for game_object in game_world.all_objects():
         game_object.draw()
     update_canvas()
+
+
+def inRect(left, top, right, bottom, x, y):
+    if left < x < right and bottom < y < top:
+        return True
+    else:
+        return False

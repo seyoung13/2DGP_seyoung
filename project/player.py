@@ -4,15 +4,16 @@ from pistol import Pistol
 
 # Boy Event
 # enum 이랑 비슷 0, 1, 2, 3
-RIGHT_DOWN, LEFT_DOWN, RIGHT_UP, LEFT_UP, S_DOWN, A_DOWN = range(6)
+RIGHT_DOWN, LEFT_DOWN, RIGHT_UP, LEFT_UP, A_DOWN, S_DOWN, D_DOWN = range(7)
 
 key_event_table = {
     (SDL_KEYDOWN, SDLK_RIGHT): RIGHT_DOWN,
     (SDL_KEYDOWN, SDLK_LEFT): LEFT_DOWN,
     (SDL_KEYUP, SDLK_RIGHT): RIGHT_UP,
     (SDL_KEYUP, SDLK_LEFT): LEFT_UP,
+    (SDL_KEYDOWN, SDLK_a): A_DOWN,
     (SDL_KEYDOWN, SDLK_s): S_DOWN,
-    (SDL_KEYDOWN, SDLK_a): A_DOWN
+    (SDL_KEYDOWN, SDLK_d): D_DOWN,
 }
 
 
@@ -35,17 +36,27 @@ class IdleState:
     def exit(player, event):
         if event == A_DOWN:
             player.shoot()
+        if event == S_DOWN and player.jumping == 0:
+            player.jumping = 1
 
     @staticmethod
     def do(player):
         player.frame = (player.frame + 1) % 8
 
+        player.jump_y = -(player.jump_count ** 2) + (20 * player.jump_count)
+        if player.jumping == 1 and player.jump_count < 20:
+            player.jump_count += 0.1
+
+        if player.jump_count > 20:
+            player.jumping = 0
+            player.jump_count = 0
+
     @staticmethod
     def draw(player):
         if player.direction > 0:
-            player.image.clip_draw(player.frame * 100, 100, 100, 100, player.x, player.y)
+            player.image.clip_draw(player.frame * 100, 100, 100, 100, player.x, player.y + player.jump_y)
         elif player.direction < 0:
-            player.image.clip_draw(player.frame * 100, 0, 100, 100, player.x, player.y)
+            player.image.clip_draw(player.frame * 100, 0, 100, 100, player.x, player.y + player.jump_y)
 
 
 class RunState:
@@ -66,19 +77,29 @@ class RunState:
     def exit(player, event):
         if event == A_DOWN:
             player.shoot()
+        if event == S_DOWN and player.jumping == 0:
+            player.jumping = 1
 
     @staticmethod
     def do(player):
         player.frame = (player.frame + 1) % 8
-        player.x += 2*player.velocity
+        player.x += 2 * player.velocity
         player.x = clamp(25, player.x, 1200 - 25)
+
+        player.jump_y = -(player.jump_count ** 2) + (20 * player.jump_count)
+        if player.jumping == 1 and player.jump_count < 20:
+            player.jump_count += 0.1
+
+        if player.jump_count > 20:
+            player.jumping = 0
+            player.jump_count = 0
 
     @staticmethod
     def draw(player):
         if player.direction > 0:
-            player.image.clip_draw(player.frame * 100, 100, 100, 100, player.x, player.y)
+            player.image.clip_draw(player.frame * 100, 100, 100, 100, player.x, player.y + player.jump_y)
         elif player.direction < 0:
-            player.image.clip_draw(player.frame * 100, 0, 100, 100, player.x, player.y)
+            player.image.clip_draw(player.frame * 100, 0, 100, 100, player.x, player.y + player.jump_y)
 
 
 next_state_table = {
@@ -130,7 +151,7 @@ class Player:
 
     def shoot(self):
         if Pistol.max_pistol < 4:
-            bullet = Pistol(self.x, self.y, self.direction)
+            bullet = Pistol(self.x, self.y + self.jump_y, self.direction)
             game_world.add_object(bullet, 1)
             Pistol.max_pistol += 1
 

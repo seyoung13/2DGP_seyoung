@@ -14,7 +14,7 @@ class Pistol:
         self.hit = 0
         if Pistol.image is None:
             Pistol.image = load_image('bullet.png')
-        
+
     def update(self):
         # 이동
         self.x += self.direction * 4
@@ -24,8 +24,8 @@ class Pistol:
             Pistol.max_pistol -= 1
             game_world.remove_object(self)
         # 적을 맞힘
-        elif main_state.enemy.x - 10 <= self.x <= main_state.enemy.x + 10 and \
-                main_state.enemy.y - 50 <= self.y <= main_state.enemy.y + 50:
+        elif main_state.inRect(main_state.enemy.x - 10, main_state.enemy.y + 10,
+                               main_state.enemy.x + 10, main_state.enemy.y - 10, self.x, self.y):
             Pistol.max_pistol -= 1
             main_state.enemy.hp -= 1
             game_world.remove_object(self)
