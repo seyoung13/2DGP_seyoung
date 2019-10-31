@@ -2,6 +2,7 @@ from pico2d import *
 import game_world
 import main_state
 from pistol import Pistol
+from grenade import Grenade
 
 # Boy Event
 # enum 이랑 비슷 0, 1, 2, 3
@@ -39,6 +40,8 @@ class IdleState:
             player.shoot()
         if event == S_DOWN and player.jumping == 0:
             player.jumping = 1
+        if event == D_DOWN:
+            player.throw()
 
     @staticmethod
     def do(player):
@@ -56,9 +59,9 @@ class IdleState:
     @staticmethod
     def draw(player):
         if player.direction > 0:
-            player.image.clip_draw(player.frame * 100, 100 * (player.fy+1), 100, 100, player.x, player.y + player.jump_y)
+            player.image.clip_draw(0, 100 * (player.fy+1), 100, 100, player.x, player.y + player.jump_y)
         elif player.direction < 0:
-            player.image.clip_draw(player.frame * 100, 100 * player.fy, 100, 100, player.x, player.y + player.jump_y)
+            player.image.clip_draw(0, 100 * player.fy, 100, 100, player.x, player.y + player.jump_y)
 
 
 class RunState:
@@ -81,6 +84,8 @@ class RunState:
             player.shoot()
         if event == S_DOWN and player.jumping == 0:
             player.jumping = 1
+        if event == D_DOWN:
+            player.throw()
 
     @staticmethod
     def do(player):
@@ -107,11 +112,11 @@ class RunState:
 next_state_table = {
     IdleState: {RIGHT_UP: RunState, LEFT_UP: RunState,
                 RIGHT_DOWN: RunState, LEFT_DOWN: RunState,
-                A_DOWN: IdleState, S_DOWN: IdleState
+                A_DOWN: IdleState, S_DOWN: IdleState, D_DOWN: IdleState
                 },
     RunState: {RIGHT_UP: IdleState, LEFT_UP: IdleState,
                LEFT_DOWN: IdleState, RIGHT_DOWN: IdleState,
-               A_DOWN: RunState, S_DOWN: RunState
+               A_DOWN: RunState, S_DOWN: RunState, D_DOWN: RunState
                }
 }
 
@@ -154,9 +159,15 @@ class Player:
 
     def shoot(self):
         if Pistol.max_pistol < 4:
-            bullet = Pistol(self.x, self.y + self.jump_y, self.direction)
+            bullet = Pistol(self.x, self.y + self.jump_y + 5, self.direction)
             game_world.add_object(bullet, 1)
             Pistol.max_pistol += 1
+
+    def throw(self):
+        if Grenade.max_grenade < 2:
+            grenade = Grenade(self.x, self.y + self.jump_y, self.direction, self.velocity)
+            game_world.add_object(grenade, 1)
+            Grenade.max_grenade += 1
 
     def handle_event(self, event):
         if (event.type, event.key) in key_event_table:

@@ -7,9 +7,10 @@ from pico2d import *
 import game_framework
 import game_world
 
-from player import Player
 from map import Map
+from player import Player
 from pistol import Pistol
+from grenade import Grenade
 from enemy import Enemy
 
 name = "MainState"
@@ -17,21 +18,24 @@ name = "MainState"
 map1 = None
 player = None
 pistol = None
+grenade = None
 enemy = None
 font = None
 
 
 def enter():
-    global player, map1, pistol, enemy
-    player = Player()
+    global player, map1, pistol, enemy, grenade
     map1 = Map()
-    enemy = Enemy()
+    player = Player()
     pistol = Pistol()
+    grenade = Grenade()
+    enemy = Enemy()
 
-    game_world.add_object(enemy, 1)
+    game_world.add_object(map1, 0)
     game_world.add_object(player, 1)
     game_world.add_object(pistol, 1)
-    game_world.add_object(map1, 0)
+    game_world.add_object(grenade, 1)
+    game_world.add_object(enemy, 1)
 
 
 def exit():

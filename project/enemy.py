@@ -8,7 +8,7 @@ class Enemy:
     image_hit = None
 
     def __init__(self):
-        self.x, self.y = random.randint(100, 1100), random.randint(70, 100)
+        self.x, self.y = random.randint(100, 1100), random.randint(70, 180)
         self.hp = 5
         self.hit = 0
         self.direction, self.face_direction = 0, 1
@@ -26,8 +26,7 @@ class Enemy:
 
         # 판정
         if self.hp <= 0:
-            self.x = random.randint(100, 1100)
-            self.y = random.randint(90, 100)
+            self.x, self.y = random.randint(100, 1100), random.randint(70, 150)
             self.hp = 5
 
         if self.hit > 0:
