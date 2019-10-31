@@ -12,7 +12,7 @@ class Pistol:
         self.direction = direction
         self.hit = 0
         if Pistol.image is None:
-            Pistol.image = load_image('bullet.png')
+            Pistol.image = load_image('pistol_bullet.png')
 
     def update(self):
         # 이동

@@ -10,6 +10,7 @@ import game_world
 from map import Map
 from player import Player
 from pistol import Pistol
+from machinegun import Machine_gun
 from grenade import Grenade
 from enemy import Enemy
 
@@ -18,22 +19,25 @@ name = "MainState"
 map1 = None
 player = None
 pistol = None
+machine_gun = None
 grenade = None
 enemy = None
 font = None
 
 
 def enter():
-    global player, map1, pistol, enemy, grenade
+    global player, map1, pistol, enemy, grenade, machine_gun
     map1 = Map()
     player = Player()
     pistol = Pistol()
+    machine_gun = Machine_gun()
     grenade = Grenade()
     enemy = Enemy()
 
     game_world.add_object(map1, 0)
     game_world.add_object(player, 1)
     game_world.add_object(pistol, 1)
+    game_world.add_object(machine_gun, 1)
     game_world.add_object(grenade, 1)
     game_world.add_object(enemy, 1)
 

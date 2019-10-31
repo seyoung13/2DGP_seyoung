@@ -2,11 +2,12 @@ from pico2d import *
 import game_world
 import main_state
 from pistol import Pistol
+from machinegun import Machine_gun
 from grenade import Grenade
 
 # Boy Event
 # enum 이랑 비슷 0, 1, 2, 3
-RIGHT_DOWN, LEFT_DOWN, RIGHT_UP, LEFT_UP, A_DOWN, S_DOWN, D_DOWN = range(7)
+RIGHT_DOWN, LEFT_DOWN, RIGHT_UP, LEFT_UP, A_DOWN, S_DOWN, D_DOWN, Q_DOWN, E_DOWN = range(9)
 
 key_event_table = {
     (SDL_KEYDOWN, SDLK_RIGHT): RIGHT_DOWN,
@@ -16,6 +17,8 @@ key_event_table = {
     (SDL_KEYDOWN, SDLK_a): A_DOWN,
     (SDL_KEYDOWN, SDLK_s): S_DOWN,
     (SDL_KEYDOWN, SDLK_d): D_DOWN,
+    (SDL_KEYDOWN, SDLK_q): Q_DOWN,
+    (SDL_KEYDOWN, SDLK_e): E_DOWN
 }
 
 
@@ -42,6 +45,10 @@ class IdleState:
             player.jumping = 1
         if event == D_DOWN:
             player.throw()
+        if event == Q_DOWN:
+            player.weapon = 0
+        if event == E_DOWN:
+            player.weapon = 1
 
     @staticmethod
     def do(player):
@@ -86,6 +93,10 @@ class RunState:
             player.jumping = 1
         if event == D_DOWN:
             player.throw()
+        if event == Q_DOWN:
+            player.weapon = 0
+        if event == E_DOWN:
+            player.weapon = 1
 
     @staticmethod
     def do(player):
@@ -112,11 +123,13 @@ class RunState:
 next_state_table = {
     IdleState: {RIGHT_UP: RunState, LEFT_UP: RunState,
                 RIGHT_DOWN: RunState, LEFT_DOWN: RunState,
-                A_DOWN: IdleState, S_DOWN: IdleState, D_DOWN: IdleState
+                A_DOWN: IdleState, S_DOWN: IdleState, D_DOWN: IdleState,
+                Q_DOWN: IdleState, E_DOWN: IdleState
                 },
     RunState: {RIGHT_UP: IdleState, LEFT_UP: IdleState,
                LEFT_DOWN: IdleState, RIGHT_DOWN: IdleState,
-               A_DOWN: RunState, S_DOWN: RunState, D_DOWN: RunState
+               A_DOWN: RunState, S_DOWN: RunState, D_DOWN: RunState,
+               Q_DOWN: RunState, E_DOWN: RunState
                }
 }
 
@@ -131,6 +144,7 @@ class Player:
         self.direction = 1
         self.velocity = 0
         self.jumping, self.jump_y, self.jump_count = 0, 0, 0
+        self.weapon = 0
 
         self.event_que = []
         self.cur_state = IdleState
@@ -158,10 +172,20 @@ class Player:
         self.cur_state.draw(self)
 
     def shoot(self):
-        if Pistol.max_pistol < 4:
-            bullet = Pistol(self.x, self.y + self.jump_y + 5, self.direction)
-            game_world.add_object(bullet, 1)
-            Pistol.max_pistol += 1
+        if self.weapon == 0:
+            if Pistol.max_pistol < 4:
+                bullet = Pistol(self.x, self.y + self.jump_y + 5, self.direction)
+                game_world.add_object(bullet, 1)
+                Pistol.max_pistol += 1
+        elif self.weapon == 1:
+            bullet1 = Machine_gun(self.x, self.y + self.jump_y, self.direction, 0)
+            bullet2 = Machine_gun(self.x, self.y + self.jump_y, self.direction, 20)
+            bullet3 = Machine_gun(self.x, self.y + self.jump_y, self.direction, 40)
+            bullet4 = Machine_gun(self.x, self.y + self.jump_y, self.direction, 60)
+            game_world.add_object(bullet1, 1)
+            game_world.add_object(bullet2, 1)
+            game_world.add_object(bullet3, 1)
+            game_world.add_object(bullet4, 1)
 
     def throw(self):
         if Grenade.max_grenade < 2:
