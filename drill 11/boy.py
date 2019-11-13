@@ -6,7 +6,7 @@ import game_world
 
 # Boy Run Speed
 PIXEL_PER_METER = (10.0 / 0.3)  # 10 pixel 30 cm
-RUN_SPEED_KMPH = 20.0  # Km / Hour
+RUN_SPEED_KMPH = 40.0  # Km / Hour
 RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
 RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0)
 RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
@@ -47,8 +47,8 @@ class IdleState:
     @staticmethod
     def exit(boy, event):
         if event == SPACE:
-            boy.fire_ball()
-        pass
+            if boy.jumping == 0:
+                boy.jumping = 1
 
     @staticmethod
     def do(boy):
@@ -82,7 +82,8 @@ class RunState:
     @staticmethod
     def exit(boy, event):
         if event == SPACE:
-            boy.fire_ball()
+            if boy.jumping == 0:
+                boy.jumping = 1
 
     @staticmethod
     def do(boy):
@@ -124,14 +125,20 @@ class SleepState:
 
 
 next_state_table = {
-    IdleState: {RIGHT_UP: RunState, LEFT_UP: RunState, RIGHT_DOWN: RunState, LEFT_DOWN: RunState,
+    IdleState: {RIGHT_UP: RunState, LEFT_UP: RunState,
+                RIGHT_DOWN: RunState,LEFT_DOWN: RunState,
                 SLEEP_TIMER: SleepState, SPACE: IdleState},
-    RunState: {RIGHT_UP: IdleState, LEFT_UP: IdleState, LEFT_DOWN: IdleState, RIGHT_DOWN: IdleState, SPACE: RunState},
-    SleepState: {LEFT_DOWN: RunState, RIGHT_DOWN: RunState, LEFT_UP: RunState, RIGHT_UP: RunState, SPACE: IdleState}
+    RunState: {RIGHT_UP: IdleState, LEFT_UP: IdleState,
+               LEFT_DOWN: IdleState, RIGHT_DOWN: IdleState,
+               SPACE: RunState},
+    SleepState: {LEFT_DOWN: RunState, RIGHT_DOWN: RunState,
+                 LEFT_UP: RunState, RIGHT_UP: RunState,
+                 SPACE: IdleState}
 }
 
 
 class Boy:
+    descending = 0
 
     def __init__(self):
         self.x, self.y = 1600 // 2, 90
@@ -141,16 +148,14 @@ class Boy:
         self.dir = 1
         self.velocity = 0
         self.frame = 0
+        self.jumping_count = 0
+        self.jump_y, self.jumping = 0, 0
         self.event_que = []
         self.cur_state = IdleState
         self.cur_state.enter(self, None)
 
     def get_bb(self):
         return self.x - 50, self.y - 50, self.x + 50, self.y + 50
-
-    def fire_ball(self):
-        ball = Ball(self.x, self.y, self.dir * RUN_SPEED_PPS * 10)
-        game_world.add_object(ball, 1)
 
     def add_event(self, event):
         self.event_que.insert(0, event)
@@ -162,6 +167,19 @@ class Boy:
             self.cur_state.exit(self, event)
             self.cur_state = next_state_table[self.cur_state][event]
             self.cur_state.enter(self, event)
+
+        if self.jumping == 1:
+            self.jumping_count += 0.1 #RUN_SPEED_PPS * game_framework.frame_time
+        self.jump_y = -(self.jumping_count ** 2) + (30 * self.jumping_count) + 90
+        if self.jumping_count >= 15:
+            Boy.descending = 1
+
+        self.y = self.jump_y
+
+    def landing(self):
+        Boy.descending = 0
+        self.jumping = 0
+        self.jumping_count = 0
 
     def draw(self):
         self.cur_state.draw(self)

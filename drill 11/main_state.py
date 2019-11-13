@@ -87,7 +87,10 @@ def update():
         if collide(grass, ball):
             ball.stop()
         if collide(brick, ball):
-            ball.stop()
+            ball.carrying()
+
+    if collide(boy, grass) and Boy.descending == 1:
+        boy.landing()
 
 
 def draw():
