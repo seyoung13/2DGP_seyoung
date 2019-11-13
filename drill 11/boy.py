@@ -1,6 +1,7 @@
 import game_framework
 from pico2d import *
 from ball import Ball
+import main_state
 
 import game_world
 
@@ -10,6 +11,12 @@ RUN_SPEED_KMPH = 40.0  # Km / Hour
 RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
 RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0)
 RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
+
+PIXEL_PER_METER = (10.0 / 0.3)
+BRICK_VELOCITY_KMPH = 30.0  # Km / Hour
+BRICK_VELOCITY_MPM = (BRICK_VELOCITY_KMPH * 1000.0 / 60.0)
+BRICK_VELOCITY_MPS = (BRICK_VELOCITY_MPM / 60.0)
+BRICK_VELOCITY_PPS = (BRICK_VELOCITY_MPS * PIXEL_PER_METER)
 
 # Boy Action Speed
 TIME_PER_ACTION = 0.5
@@ -180,6 +187,10 @@ class Boy:
         Boy.descending = 0
         self.jumping = 0
         self.jumping_count = 0
+
+    def carrying(self):
+        self.jumping = 0
+        self.x += main_state.brick.direction * BRICK_VELOCITY_PPS * game_framework.frame_time
 
     def draw(self):
         self.cur_state.draw(self)
