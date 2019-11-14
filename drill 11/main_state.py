@@ -93,6 +93,8 @@ def update():
         boy.landing()
     if collide(boy, brick) and Boy.descending == 1:
         boy.carrying()
+    if not collide(boy, brick) and not collide(boy, grass):
+        Boy.descending = 1
 
 
 def draw():

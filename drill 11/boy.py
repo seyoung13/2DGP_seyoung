@@ -12,7 +12,11 @@ RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
 RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0)
 RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
 
-PIXEL_PER_METER = (10.0 / 0.3)
+JUMP_SPEED_KMPH = 5.0  # Km / Hour
+JUMP_SPEED_MPM = (JUMP_SPEED_KMPH * 1000.0 / 60.0)
+JUMP_SPEED_MPS = (JUMP_SPEED_MPM / 60.0)
+JUMP_SPEED_PPS = (JUMP_SPEED_MPS * PIXEL_PER_METER)
+
 BRICK_VELOCITY_KMPH = 30.0  # Km / Hour
 BRICK_VELOCITY_MPM = (BRICK_VELOCITY_KMPH * 1000.0 / 60.0)
 BRICK_VELOCITY_MPS = (BRICK_VELOCITY_MPM / 60.0)
@@ -175,8 +179,11 @@ class Boy:
             self.cur_state = next_state_table[self.cur_state][event]
             self.cur_state.enter(self, event)
 
+        if Boy.descending == 1:
+            self.jumping = 1
+
         if self.jumping == 1:
-            self.jumping_count += 0.1 #RUN_SPEED_PPS * game_framework.frame_time
+            self.jumping_count += JUMP_SPEED_PPS * game_framework.frame_time
         self.jump_y = -(self.jumping_count ** 2) + (30 * self.jumping_count) + 90
         if self.jumping_count >= 15:
             Boy.descending = 1
@@ -189,6 +196,7 @@ class Boy:
         self.jumping_count = 0
 
     def carrying(self):
+        Boy.descending = 0
         self.jumping = 0
         self.x += main_state.brick.direction * BRICK_VELOCITY_PPS * game_framework.frame_time
 
