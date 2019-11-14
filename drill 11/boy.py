@@ -2,6 +2,7 @@ import game_framework
 from pico2d import *
 from ball import Ball
 import main_state
+import math
 
 import game_world
 
@@ -12,7 +13,7 @@ RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
 RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0)
 RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
 
-JUMP_SPEED_KMPH = 5.0  # Km / Hour
+JUMP_SPEED_KMPH = 40.0  # Km / Hour
 JUMP_SPEED_MPM = (JUMP_SPEED_KMPH * 1000.0 / 60.0)
 JUMP_SPEED_MPS = (JUMP_SPEED_MPM / 60.0)
 JUMP_SPEED_PPS = (JUMP_SPEED_MPS * PIXEL_PER_METER)
@@ -159,8 +160,9 @@ class Boy:
         self.dir = 1
         self.velocity = 0
         self.frame = 0
-        self.jumping_count = 0
-        self.jump_y, self.jumping = 0, 0
+        self.jumping = 0
+        self.jump_y, self.before_jump_y = 0, 0
+        self.jump_velocity = 0
         self.event_que = []
         self.cur_state = IdleState
         self.cur_state.enter(self, None)
@@ -179,21 +181,20 @@ class Boy:
             self.cur_state = next_state_table[self.cur_state][event]
             self.cur_state.enter(self, event)
 
-        if Boy.descending == 1:
-            self.jumping = 1
+        if self.jumping == 0:
+            self.before_jump_y = self.y
 
-        if self.jumping == 1:
-            self.jumping_count += JUMP_SPEED_PPS * game_framework.frame_time
-        self.jump_y = -(self.jumping_count ** 2) + (30 * self.jumping_count) + 90
-        if self.jumping_count >= 15:
+        if self.y - self.before_jump_y >= 200:
             Boy.descending = 1
 
-        self.y = self.jump_y
+        if self.jumping == 1 and Boy.descending == 0:
+            self.y += JUMP_SPEED_PPS * game_framework.frame_time
+        if self.jumping == 1 and Boy.descending == 1:
+            self.y -= JUMP_SPEED_PPS * game_framework.frame_time
 
     def landing(self):
         Boy.descending = 0
         self.jumping = 0
-        self.jumping_count = 0
 
     def carrying(self):
         Boy.descending = 0
