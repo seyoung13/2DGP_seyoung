@@ -61,6 +61,7 @@ class IdleState:
         if event == SPACE:
             if boy.jumping == 0:
                 boy.jumping = 1
+                Boy.descending = 0
 
     @staticmethod
     def do(boy):
@@ -96,6 +97,7 @@ class RunState:
         if event == SPACE:
             if boy.jumping == 0:
                 boy.jumping = 1
+                Boy.descending = 0
 
     @staticmethod
     def do(boy):
@@ -197,9 +199,11 @@ class Boy:
         self.jumping = 0
 
     def carrying(self):
-        Boy.descending = 0
-        self.jumping = 0
-        self.x += main_state.brick.direction * BRICK_VELOCITY_PPS * game_framework.frame_time
+        if self.y - 50 > main_state.brick.y:
+            Boy.descending = 0
+            self.jumping = 0
+            self.y = main_state.brick.y + 70
+            self.x += main_state.brick.direction * BRICK_VELOCITY_PPS * game_framework.frame_time
 
     def draw(self):
         self.cur_state.draw(self)
