@@ -96,6 +96,7 @@ def update():
     if collide(boy, brick) and Boy.descending == 0:
         Boy.descending = 1
 
+
 def draw():
     clear_canvas()
     for game_object in game_world.all_objects():
