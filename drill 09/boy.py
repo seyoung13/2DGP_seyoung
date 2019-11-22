@@ -107,7 +107,7 @@ class DashState:
 
     @staticmethod
     def draw(boy):
-        if boy.velocity >  0:
+        if boy.velocity > 0:
             boy.image.clip_draw(boy.frame * 100, 100, 100, 100, boy.x, boy.y)
         else:
             boy.image.clip_draw(boy.frame * 100, 0, 100, 100, boy.x, boy.y)
@@ -116,17 +116,15 @@ class DashState:
 next_state_table = {
     IdleState: {RIGHT_UP: RunState, LEFT_UP: RunState,
                 RIGHT_DOWN: RunState, LEFT_DOWN: RunState,
-                LSHIFT_UP: RunState, RSHIFT_UP: RunState,
                 LSHIFT_DOWN: RunState, RSHIFT_DOWN: RunState
                 },
     RunState: {RIGHT_UP: IdleState, LEFT_UP: IdleState,
                LEFT_DOWN: IdleState, RIGHT_DOWN: IdleState,
                LSHIFT_UP: DashState, RSHIFT_UP: DashState,
                LSHIFT_DOWN: DashState, RSHIFT_DOWN: DashState},
-    DashState: {LSHIFT_UP: IdleState, RSHIFT_UP: IdleState,
-                LSHIFT_DOWN: IdleState, RSHIFT_DOWN: IdleState,
-                RIGHT_UP: IdleState, LEFT_UP: IdleState,
-                RIGHT_DOWN: IdleState, LEFT_DOWN: IdleState}
+    DashState: {LSHIFT_UP: RunState, RSHIFT_UP: RunState,
+                RIGHT_UP: RunState, LEFT_UP: RunState,
+                RIGHT_DOWN: RunState, LEFT_DOWN: RunState}
 }
 
 
