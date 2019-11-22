@@ -71,7 +71,7 @@ class Zombie:
         return BehaviorTree.SUCCESS
 
     def move_to_big_ball(self):
-        self.speed = RUN_SPEED_PPS
+        self.speed = 5*RUN_SPEED_PPS
         self.calculate_current_position()
 
         distance = (self.target_x - self.x) ** 2 + (self.target_y - self.y) ** 2
@@ -82,7 +82,7 @@ class Zombie:
 
     def get_small_ball_position(self):
         small_ball = main_state.get_small_balls()
-        positions = [(big_ball[i].x, big_ball[i].y) for i in range(5)]
+        positions = [(small_ball[i].x, small_ball[i].y) for i in range(5)]
         self.target_x, self.target_y = positions[self.order % len(positions)]
         self.order += 1
         self.dir = math.atan2(self.target_y - self.y, self.target_x - self.x)
@@ -103,7 +103,16 @@ class Zombie:
         move_to_big_ball_node = LeafNode("Move to Target", self.move_to_big_ball)
         find_big_ball_node = SequenceNode("Find Big Ball")
         find_big_ball_node.add_children(get_big_ball_position_node, move_to_big_ball_node)
-        self.bt = BehaviorTree(find_big_ball_node)
+
+        get_small_ball_position_node = LeafNode("Get Big Ball Position", self.get_small_ball_position)
+        move_to_small_ball_node = LeafNode("Move to Target", self.move_to_small_ball)
+        find_small_ball_node = SequenceNode("Find Big Ball")
+        find_small_ball_node.add_children(get_small_ball_position_node, move_to_small_ball_node)
+
+        chase_node = SequenceNode("Chase")
+        chase_node.add_children(find_big_ball_node, find_small_ball_node)
+
+        self.bt = BehaviorTree(chase_node)
 
     def get_bb(self):
         return self.x - 40, self.y - 50, self.x + 40, self.y + 50
