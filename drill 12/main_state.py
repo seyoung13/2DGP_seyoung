@@ -35,6 +35,14 @@ def get_boy():
     return boy
 
 
+def get_big_balls():
+    return big_balls
+
+
+def get_small_balls():
+    return small_balls
+
+
 def enter():
     global boy
     boy = Boy()

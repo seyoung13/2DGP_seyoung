@@ -1,12 +1,13 @@
 from pico2d import *
 import random
 
+
 class BigBall:
 
     image = None
 
     def __init__(self):
-        self.x, self.y = random.randint(50, 950), random.randint(50, 950)
+        self.x, self.y = random.randint(100, 950), random.randint(100, 950)
         if BigBall.image is None:
             BigBall.image = load_image('ball41x41.png')
 

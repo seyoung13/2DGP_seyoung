@@ -40,6 +40,8 @@ class Zombie:
         self.timer = 1.0  # change direction every 1 sec when wandering
         self.frame = 0
         self.build_behavior_tree()
+        self.target_x, self.target_y = 0, 0
+        self.order = 0
 
     def calculate_current_position(self):
         self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % FRAMES_PER_ACTION
@@ -61,27 +63,53 @@ class Zombie:
         pass
 
     def get_big_ball_position(self):
-        # fill here
-        pass
+        big_ball = main_state.get_big_balls()
+        positions = [(big_ball[i].x, big_ball[i].y) for i in range(5)]
+        self.target_x, self.target_y = positions[self.order % len(positions)]
+        self.order += 1
+        self.dir = math.atan2(self.target_y - self.y, self.target_x - self.x)
+        return BehaviorTree.SUCCESS
+
+    def move_to_big_ball(self):
+        self.speed = RUN_SPEED_PPS
+        self.calculate_current_position()
+
+        distance = (self.target_x - self.x) ** 2 + (self.target_y - self.y) ** 2
+        if distance < PIXEL_PER_METER ** 2:
+            return BehaviorTree.SUCCESS
+        else:
+            return BehaviorTree.RUNNING
 
     def get_small_ball_position(self):
+        small_ball = main_state.get_small_balls()
+        positions = [(big_ball[i].x, big_ball[i].y) for i in range(5)]
+        self.target_x, self.target_y = positions[self.order % len(positions)]
+        self.order += 1
+        self.dir = math.atan2(self.target_y - self.y, self.target_x - self.x)
+        return BehaviorTree.SUCCESS
 
-        pass
+    def move_to_small_ball(self):
+        self.speed = RUN_SPEED_PPS
+        self.calculate_current_position()
 
-    def move_to_target(self):
-        # fill here
-        pass
+        distance = (self.target_x - self.x)**2 + (self.target_y - self.y)**2
+        if distance < PIXEL_PER_METER ** 2:
+            return BehaviorTree.SUCCESS
+        else:
+            return BehaviorTree.RUNNING
 
     def build_behavior_tree(self):
-        # fill here
-        pass
+        get_big_ball_position_node = LeafNode("Get Big Ball Position", self.get_big_ball_position)
+        move_to_big_ball_node = LeafNode("Move to Target", self.move_to_big_ball)
+        find_big_ball_node = SequenceNode("Find Big Ball")
+        find_big_ball_node.add_children(get_big_ball_position_node, move_to_big_ball_node)
+        self.bt = BehaviorTree(find_big_ball_node)
 
     def get_bb(self):
         return self.x - 40, self.y - 50, self.x + 40, self.y + 50
 
     def update(self):
-        # fill here
-        pass
+        self.bt.run()
 
     def draw(self):
         draw_rectangle(*self.get_bb())
