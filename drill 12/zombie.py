@@ -32,7 +32,9 @@ class Zombie:
 
     def __init__(self):
         self.x, self.y = 1280 / 4 * 3, 1024 / 4 * 3
+        self.hp = 50
         self.load_images()
+        self.font = load_font('ENCR10B.TTF', 16)
         self.dir = random.random() * 2 * math.pi  # random moving direction
         self.speed = 0
         self.timer = 1.0  # change direction every 1 sec when wandering
@@ -75,13 +77,15 @@ class Zombie:
         pass
 
     def get_bb(self):
-        return self.x - 50, self.y - 50, self.x + 50, self.y + 50
+        return self.x - 40, self.y - 50, self.x + 40, self.y + 50
 
     def update(self):
         # fill here
         pass
 
     def draw(self):
+        draw_rectangle(*self.get_bb())
+        self.font.draw(self.x - 60, self.y + 50, '(HP: %d)' % self.hp, (255, 255, 0))
         if math.cos(self.dir) < 0:
             if self.speed == 0:
                 Zombie.images['Idle'][int(self.frame)].composite_draw(0, 'h', self.x, self.y, 100, 100)
