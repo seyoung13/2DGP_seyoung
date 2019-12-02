@@ -9,11 +9,15 @@ class Ball:
         self.x, self.y = 400, 400
         self.canvas_width = get_canvas_width()
         self.canvas_height = get_canvas_height()
+        self.existing = True
         if Ball.image is None:
             Ball.image = load_image('ball21x21.png')
 
     def get_bb(self):
-        return self.x-20, self.y-20, self.x+20, self.y+20
+        if self.existing:
+            return self.x-20, self.y-20, self.x+20, self.y+20
+        else:
+            return -100, -100, -100, -100
 
     def update(self):
         pass
@@ -24,4 +28,7 @@ class Ball:
 
     def set_background(self, bg):
         self.bg = bg
+
+    def touched(self):
+        self.existing = False
 

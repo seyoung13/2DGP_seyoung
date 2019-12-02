@@ -119,6 +119,7 @@ class Boy:
         self.event_que = []
         self.cur_state = WalkingState
         self.cur_state.enter(self, None)
+        self.score = 0
 
     def get_bb(self):
         return self.x - 50, self.y - 50, self.x + 50, self.y + 50
@@ -142,10 +143,12 @@ class Boy:
     def draw(self):
         self.cur_state.draw(self)
         self.font.draw(self.canvas_width//2 - 60, self.canvas_height//2 + 50, '(%5d, %5d)' % (self.x, self.y), (255, 255, 0))
-        # draw_rectangle(*self.get_bb())
+        self.font.draw(self.canvas_width // 2 - 60, self.canvas_height // 2 + 70, '(score : %2d)' % self.score, (255, 255, 0))
 
     def handle_event(self, event):
         if (event.type, event.key) in key_event_table:
             key_event = key_event_table[(event.type, event.key)]
             self.add_event(key_event)
 
+    def get_score(self):
+        self.score += 1
