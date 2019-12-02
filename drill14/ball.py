@@ -1,12 +1,12 @@
 import game_framework
 from pico2d import *
-
+import random
 
 class Ball:
     image = None
 
     def __init__(self):
-        self.x, self.y = 400, 400
+        self.x, self.y = random.randint(10, 1600-10), random.randint(10, 1200-10)
         self.canvas_width = get_canvas_width()
         self.canvas_height = get_canvas_height()
         self.existing = True

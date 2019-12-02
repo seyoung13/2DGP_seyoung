@@ -15,7 +15,7 @@ name = "MainState"
 
 boy = None
 background = None
-ball = None
+balls = None
 
 
 def collide(a, b):
@@ -44,14 +44,15 @@ def enter():
     background = Background()
     game_world.add_object(background, 0)
 
-    global ball
-    ball = Ball()
-    game_world.add_object(ball, 1)
-
+    global balls
+    balls = [Ball() for i in range(100)]
+    game_world.add_objects(balls, 1)
 
     background.set_center_object(boy)
     boy.set_background(background)
-    ball.set_background(background)
+
+    for ball in balls:
+        ball.set_background(background)
 
 
 def exit():
@@ -80,10 +81,11 @@ def handle_events():
 def update():
     for game_object in game_world.all_objects():
         game_object.update()
-    if collide(boy, ball):
-        game_world.remove_object(ball)
-        boy.get_score()
-        ball.touched()
+    for ball in balls:
+        if collide(boy, ball):
+            game_world.remove_object(ball)
+            boy.get_score()
+            ball.touched()
 
 
 def draw():
